@@ -39,6 +39,7 @@ terraform.rc
 
 # Tệp khóa trạng thái (lock info) của Terraform
 .terraform.tfstate.lock.info
+*.terraform.lock.hcl
 
 # Các file json
 *.json
