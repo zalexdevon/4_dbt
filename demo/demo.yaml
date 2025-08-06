@@ -1,0 +1,24 @@
+id: demo
+namespace: zoomcamp
+description: |
+  data used here comes from: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
+
+tasks:
+  - id: wdir
+    type: io.kestra.plugin.core.flow.WorkingDirectory
+    tasks:
+      - id: clone
+        type: io.kestra.plugin.git.Clone
+        url: "{{inputs.github_url}}"
+
+  - id: extract
+    type: io.kestra.plugin.scripts.shell.Commands
+    outputFiles:
+      - "*.csv"
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    commands:
+      - wget -qO- https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2020-01.parquet
+
+  - id: convert_parquet_to_csv
+    type:

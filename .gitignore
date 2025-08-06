@@ -1,0 +1,48 @@
+# Thư mục .terraform chứa các plugin và mô-đun
+**/.terraform/*
+
+# Tệp trạng thái Terraform
+*.tfstate
+*.tfstate.*
+
+# Tệp nhật ký lỗi
+crash.log
+crash.*.log
+
+# Tệp biến (có thể chứa thông tin nhạy cảm)
+*.tfvars
+*.tfvars.json
+
+# Tệp ghi đè cấu hình (override)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Tệp kế hoạch Terraform (tfplan)
+*tfplan*
+
+# Tệp khóa và chứng chỉ (nếu có)
+*.pem
+*.key
+*.pub
+
+# Tệp cấu hình CLI Terraform
+.terraformrc
+terraform.rc
+
+# Tệp đồ thị (nếu có)
+*.dot
+
+# Tệp cấu hình môi trường (nếu có)
+.envrc
+
+# Tệp khóa trạng thái (lock info) của Terraform
+.terraform.tfstate.lock.info
+
+# Các file json
+*.json
+
+# workflow upload các giá trị lên KV store 
+main/workflows/upload_to_kv_store.yaml
+
