@@ -15,8 +15,8 @@ tasks:
         type: io.kestra.plugin.scripts.shell.Commands
         beforeCommands:
           - pip install pandas pyarrow kestra
-        outputFiles:
-          - "*.csv"
+        # outputFiles:
+        #   - "*.csv"
         taskRunner:
           type: io.kestra.plugin.core.runner.Process
         commands:
