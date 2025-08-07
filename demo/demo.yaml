@@ -41,13 +41,13 @@ tasks:
       - id: read_sql
         type: io.kestra.plugin.scripts.python.Commands
         beforeCommands:
-          - pip install kestra
+          - pip install kestra jinja2
         commands:
           - python demo/read_sql.py
 
       - id: create_schema
         type: io.kestra.plugin.gcp.bigquery.Query
-        sql: "{{ outputs.read_sql.vars.demo_content }}"
+        sql: "{{ outputs.read_sql.vars.sql }}"
 
       - id: purge_files
         type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles

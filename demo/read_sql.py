@@ -1,6 +1,14 @@
+import os
+from jinja2 import Template
 from kestra import Kestra
 
 with open("demo/demo.sql", "r") as f:
-    demo_content = f.read()
+    sql_template = Template(f.read())
 
-Kestra.outputs({"demo_content": demo_content})
+sql = sql_template.render(
+    GCP_PROJECT_ID=os.environ.get("GCP_PROJECT_ID"),
+    GCP_DATASET=os.environ.get("GCP_DATASET"),
+)
+
+
+Kestra.outputs({"sql": sql})
