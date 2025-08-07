@@ -40,14 +40,14 @@ tasks:
 
       - id: read_sql
         type: io.kestra.plugin.scripts.python.Commands
-        taskRunner:
-          type: io.kestra.plugin.core.runner.Process
+        beforeCommands:
+          - pip install kestra
         commands:
           - python demo/read_sql.py
 
       - id: create_schema
         type: io.kestra.plugin.gcp.bigquery.Query
-        sql: "{{ outputs.read_sql.stdout }}"
+        sql: "{{ outputs.read_sql.vars.demo_content }}"
 
       - id: purge_files
         type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
