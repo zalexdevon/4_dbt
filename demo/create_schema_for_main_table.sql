@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS `{{table}}`
     RatecodeID STRING,
     PULocationID STRING,
     DOLocationID STRING,
-    passenger_count INT64,
+    passenger_count INTEGER,
     trip_distance NUMERIC,
     fare_amount NUMERIC ,
     extra NUMERIC,
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `{{table}}`
     ehail_fee NUMERIC,
     improvement_surcharge NUMERIC,
     total_amount NUMERIC,
-    payment_type INTEGER ,
+    payment_type INTEGER,
     trip_type STRING ,
     congestion_surcharge NUMERIC
 )
