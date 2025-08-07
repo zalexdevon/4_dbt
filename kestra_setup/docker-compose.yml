@@ -57,7 +57,6 @@ services:
             tmpDir:
               path: /tmp/kestra-wd/tmp
           url: http://localhost:8080/
-      GCP_CREDS_JSON: ${GCP_CREDS_JSON}  
     ports:
       - "8080:8080"
       - "8081:8081"
