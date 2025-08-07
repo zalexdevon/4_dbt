@@ -1,7 +1,5 @@
-CREATE TABLE IF NOT EXISTS `{{GCP_PROJECT_ID}}.{{GCP_DATASET}}.green_tripdata`
+CREATE OR REPLACE EXTERNAL TABLE `{{table}}`
 (
-    unique_row_id BYTES,
-    filename STRING,      
     VendorID STRING ,
     lpep_pickup_datetime TIMESTAMP,
     lpep_dropoff_datetime TIMESTAMP,
@@ -23,4 +21,9 @@ CREATE TABLE IF NOT EXISTS `{{GCP_PROJECT_ID}}.{{GCP_DATASET}}.green_tripdata`
     trip_type STRING ,
     congestion_surcharge NUMERIC
 )
-PARTITION BY DATE(lpep_pickup_datetime);
+OPTIONS (
+    format = 'CSV',
+    uris = [{{gcs_file}}],
+    skip_leading_rows = 1,
+    ignore_unknown_values = TRUE
+);

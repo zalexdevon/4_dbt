@@ -2,17 +2,20 @@ import os
 from jinja2 import Template
 from kestra import Kestra
 import sys
+import json
 
-GCP_PROJECT_ID = sys.argv[1]
-GCP_DATASET = sys.argv[2]
+# Đọc đối số dòng lệnh đầu tiên (argv[1])
+params_str = sys.argv[1]
+file_path = sys.argv[2]
 
-with open("demo/demo.sql", "r") as f:
+# Chuyển từ JSON string → dict
+params = json.loads(params_str)
+
+with open(file_path, "r") as f:
     sql_template = Template(f.read())
 
-sql = sql_template.render(
-    GCP_PROJECT_ID=GCP_PROJECT_ID,
-    GCP_DATASET=GCP_DATASET,
-)
+sql = sql_template.render(**params)
 
-
-Kestra.outputs({"sql": sql})
+# print(sql)
+var_name = file_path.split(".")[0]
+Kestra.outputs({var_name: sql})

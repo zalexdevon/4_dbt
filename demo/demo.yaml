@@ -8,6 +8,13 @@ variables:
   csv_file: "green_tripdata_2020-01.csv"
   gcs_file: "gs://{{kv('GCP_BUCKET_NAME')}}/{{vars.csv_file}}"
   data: "{{outputs.convert_parquet_to_csv.outputFiles[vars.csv_file]}}"
+  main_table: "{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.green_tripdata"
+  ext_table: "{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.green_tripdata_2020-01_ext"
+  tmp_table: "{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.green_tripdata_2020-01"
+  create_schema_for_main_table_params_dict: '{"table": {{vars.main_table}}}'
+  create_ext_table_params_dict: '{"table": {{vars.ext_table}}, "gcs_file": {{vars.gcs_file}}}'
+  create_tmp_table_params_dict: '{"table": {{vars.tmp_table}}, "source_file": {{vars.source_file}}, "ext_table": {{vars.ext_table}}}'
+  merge_params_dict: '{"main_table": {{vars.main_table}}, "tmp_table": {{vars.tmp_table}}}'
 
 tasks:
   - id: wdir
@@ -43,11 +50,26 @@ tasks:
         beforeCommands:
           - pip install kestra jinja2
         commands:
-          - python demo/read_sql.py {{kv('GCP_PROJECT_ID')}} {{kv('GCP_DATASET')}}
+          - python demo/read_sql.py {{render(vars.create_schema_for_main_table_params_dict)}} "demo/create_schema_for_main_table.sql"
+          - python demo/read_sql.py {{render(vars.create_ext_table_params_dict)}} "demo/create_ext_table.sql"
+          - python demo/read_sql.py {{render(vars.create_tmp_table_params_dict)}} "demo/create_tmp_table.sql"
+          - python demo/read_sql.py {{render(vars.merge_params_dict)}} "demo/merge.sql"
 
-      - id: create_schema
+      - id: create_schema_for_main_table
         type: io.kestra.plugin.gcp.bigquery.Query
-        sql: "{{ outputs.read_sql.vars.sql }}"
+        sql: "{{ outputs.read_sql.vars.create_schema_for_main_table }}"
+
+      - id: create_ext_table
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: "{{ outputs.read_sql.vars.create_ext_table }}"
+
+      - id: create_tmp_table
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: "{{ outputs.read_sql.vars.create_tmp_table }}"
+
+      - id: merge
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: "{{ outputs.read_sql.vars.merge }}"
 
       - id: purge_files
         type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
