@@ -1,4 +1,4 @@
-CREATE OR REPLACE TABLE `{{table}}`
+CREATE TABLE IF NOT EXISTS `{{table}}`
 (
     unique_row_id BYTES,
     filename STRING,      
