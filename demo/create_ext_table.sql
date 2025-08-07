@@ -25,6 +25,6 @@ OPTIONS (
     format = 'CSV',
     uris = ["{{gcs_file}}"],
     skip_leading_rows = 1,
-    ignore_unknown_values = TRUE, 
+    ignore_unknown_values = TRUE
     -- null_marker = 'NaN'
 );
