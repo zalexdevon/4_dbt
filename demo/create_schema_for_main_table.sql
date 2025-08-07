@@ -22,5 +22,4 @@ CREATE TABLE IF NOT EXISTS `{{table}}`
     payment_type INTEGER,
     trip_type STRING ,
     congestion_surcharge NUMERIC
-)
-PARTITION BY DATE(lpep_pickup_datetime);
+); 
