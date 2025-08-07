@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS `{{ext_table}}`,  `{{tmp_table}}`; 

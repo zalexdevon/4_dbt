@@ -3,18 +3,28 @@ namespace: zoomcamp
 description: |
   data used here comes from: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
 
+inputs:
+  - id: taxi
+    type: SELECT
+    displayName: Select taxi type
+    values: [yellow, green, fhv]
+    defaults: green
+
 variables:
-  source_file: "green_tripdata_2020-01.parquet"
-  csv_file: "green_tripdata_2020-01.csv"
+  year_month: "{{trigger.date | date('yyyy-MM')}}"
+  file_name: "{{inputs.taxi}}_tripdata_{{vars.year_month}}"
+  source_file: "{{vars.file_name}}.parquet"
+  csv_file: "{{vars.file_name}}.csv"
   gcs_file: "gs://{{kv('GCP_BUCKET_NAME')}}/{{vars.csv_file}}"
   data: "{{outputs.convert_parquet_to_csv.outputFiles[vars.csv_file]}}"
-  main_table: "{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.green_tripdata"
-  ext_table: "{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.green_tripdata_2020-01_ext"
-  tmp_table: "{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.green_tripdata_2020-01"
+  main_table: "{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{inputs.taxi}}_tripdata"
+  ext_table: "{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{vars.file_name}}_ext"
+  tmp_table: "{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{vars.file_name}}"
   create_schema_for_main_table_params_dict: '{ "table": "{{vars.main_table}}" }'
   create_ext_table_params_dict: '{ "table": "{{vars.ext_table}}", "gcs_file": "{{vars.gcs_file}}" }'
   create_tmp_table_params_dict: '{ "table": "{{vars.tmp_table}}", "source_file": "{{vars.source_file}}", "ext_table": "{{vars.ext_table}}" }'
   merge_params_dict: '{ "main_table": "{{vars.main_table}}", "tmp_table": "{{vars.tmp_table}}" }'
+  remove_ext_tmp_table_params_dict: '{ "ext_table": "{{vars.ext_table}}", "tmp_table": "{{vars.tmp_table}}" }'
 
 tasks:
   - id: wdir
@@ -38,7 +48,7 @@ tasks:
         outputFiles:
           - "*.csv"
         commands:
-          - python demo/convert_parquet_to_csv.py {{ vars.source_file }} {{ vars.csv_file }}
+          - python main/code/utils/convert_parquet_to_csv.py {{ vars.source_file }} {{ vars.csv_file }}
 
       - id: upload_to_gcs
         type: io.kestra.plugin.gcp.gcs.Upload
@@ -50,10 +60,11 @@ tasks:
         beforeCommands:
           - pip install kestra jinja2
         commands:
-          - python demo/read_sql.py '{{render(vars.create_schema_for_main_table_params_dict)}}' "demo/create_schema_for_main_table.sql"
-          - python demo/read_sql.py '{{render(vars.create_ext_table_params_dict)}}' "demo/create_ext_table.sql"
-          - python demo/read_sql.py '{{render(vars.create_tmp_table_params_dict)}}' "demo/create_tmp_table.sql"
-          - python demo/read_sql.py '{{render(vars.merge_params_dict)}}' "demo/merge.sql"
+          - python main/code/utils/read_sql.py '{{render(vars.create_schema_for_main_table_params_dict)}}' "main/code/{{inputs.taxi}}/create_schema_for_main_table.sql"
+          - python main/code/utils/read_sql.py '{{render(vars.create_ext_table_params_dict)}}' "main/code/{{inputs.taxi}}/create_ext_table.sql"
+          - python main/code/utils/read_sql.py '{{render(vars.create_tmp_table_params_dict)}}' "main/code/{{inputs.taxi}}/create_tmp_table.sql"
+          - python main/code/utils/read_sql.py '{{render(vars.merge_params_dict)}}' "main/code/{{inputs.taxi}}/merge.sql"
+          - python main/code/utils/read_sql.py '{{render(vars.remove_ext_tmp_table_params_dict)}}' "main/code/common/remove_ext_tmp_table.sql"
 
       - id: create_schema_for_main_table
         type: io.kestra.plugin.gcp.bigquery.Query
@@ -70,6 +81,10 @@ tasks:
       - id: merge
         type: io.kestra.plugin.gcp.bigquery.Query
         sql: "{{ outputs.read_sql.vars.merge }}"
+
+      - id: remove_ext_tmp_table
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: "{{ outputs.read_sql.vars.remove_ext_tmp_table }}"
 
       - id: purge_files
         type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
