@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.green_tripdata`
+CREATE TABLE IF NOT EXISTS `{{GCP_PROJECT_ID}}.{{GCP_DATASET}}.green_tripdata`
 (
     unique_row_id BYTES,
     filename STRING,      
