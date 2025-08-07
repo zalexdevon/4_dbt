@@ -18,13 +18,11 @@ tasks:
         taskRunner:
           type: io.kestra.plugin.core.runner.Process
         commands:
-          - wget -qO- https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2020-01.parquet
+          - wget -q https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2020-01.parquet
 
       - id: convert_parquet_to_csv
         type: io.kestra.plugin.scripts.python.Commands
-        inputFiles:
-          - green_tripdata_2020-01.parquet
         beforeCommands:
-          - pip install pandas
+          - pip install pandas pyarrow
         commands:
           - python demo/demo.py
