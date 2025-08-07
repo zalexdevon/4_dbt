@@ -7,7 +7,7 @@ CREATE OR REPLACE EXTERNAL TABLE `{{table}}`
     RatecodeID STRING,
     PULocationID STRING,
     DOLocationID STRING,
-    passenger_count INT64,
+    passenger_count INTEGER,
     trip_distance NUMERIC,
     fare_amount NUMERIC ,
     extra NUMERIC,
