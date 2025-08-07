@@ -1,12 +1,15 @@
 import pandas as pd
-from kestra import Kestra
+import sys
+
+# Lấy giá trị biến môi trường
+source_file = sys.argv[1]
+csv_file = sys.argv[2]
 
 # Đọc file parquet
-file_path = "green_tripdata_2020-01.parquet"
-df = pd.read_parquet(file_path)
+df = pd.read_parquet(source_file)
 
 # Ghi ra file CSV
-df.to_csv("green_tripdata_2020-01.csv", index=False)
+df.to_csv(csv_file, index=False)
 print(f"Shape của df: {df.shape}")
 
 # # Output biến df

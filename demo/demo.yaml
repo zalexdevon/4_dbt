@@ -3,6 +3,10 @@ namespace: zoomcamp
 description: |
   data used here comes from: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
 
+variables:
+  source_file: "green_tripdata_2020-01.parquet"
+  csv_file: "green_tripdata_2020-01.csv"
+
 tasks:
   - id: wdir
     type: io.kestra.plugin.core.flow.WorkingDirectory
@@ -16,7 +20,7 @@ tasks:
         taskRunner:
           type: io.kestra.plugin.core.runner.Process
         commands:
-          - wget -q -O green_tripdata_2020-01.parquet https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2020-01.parquet
+          - wget -q -O {{render(vars.source_file)}} https://d37ci6vzurychx.cloudfront.net/trip-data/{{render(vars.source_file)}}
 
       - id: convert_parquet_to_csv
         type: io.kestra.plugin.scripts.python.Commands
@@ -25,12 +29,12 @@ tasks:
         outputFiles:
           - "*.csv"
         commands:
-          - python demo/demo.py
+          - python demo/demo.py {{ vars.source_file }} {{ vars.csv_file }}
 
       - id: upload_to_gcs
         type: io.kestra.plugin.gcp.gcs.Upload
-        from: "{{outputs.convert_parquet_to_csv.outputFiles['green_tripdata_2020-01.csv']}}"
-        to: "gs://{{kv('GCP_BUCKET_NAME')}}/green_tripdata_2020-01.csv"
+        from: "{{outputs.convert_parquet_to_csv.outputFiles[{{render(vars.csv_file)}}]}}"
+        to: "gs://{{kv('GCP_BUCKET_NAME')}}/{{render(vars.csv_file)}}"
 
 pluginDefaults:
   - type: io.kestra.plugin.gcp
