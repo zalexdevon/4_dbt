@@ -43,7 +43,7 @@ tasks:
         beforeCommands:
           - pip install kestra jinja2
         commands:
-          - python demo/read_sql.py
+          - python demo/read_sql.py {{kv('GCP_PROJECT_ID')}} {{kv('GCP_DATASET')}}
 
       - id: create_schema
         type: io.kestra.plugin.gcp.bigquery.Query
