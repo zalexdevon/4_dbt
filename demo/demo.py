@@ -7,6 +7,7 @@ df = pd.read_parquet(file_path)
 
 # Ghi ra file CSV
 df.to_csv("green_tripdata_2020-01.csv", index=False)
+print(f"Shape của df: {df.shape}")
 
 # # Output biến df
 # Kestra.outputs({"green_tripdata_2020-01": df})
