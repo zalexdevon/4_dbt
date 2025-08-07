@@ -13,26 +13,29 @@ tasks:
 
       - id: extract
         type: io.kestra.plugin.scripts.shell.Commands
-        beforeCommands:
-          - pip install pandas pyarrow kestra
-        # outputFiles:
-        #   - "*.csv"
         taskRunner:
           type: io.kestra.plugin.core.runner.Process
         commands:
           - wget -q -O green_tripdata_2020-01.parquet https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2020-01.parquet
-          # - echo "Trước demo.py:"
-          # - ls -lh
-          - python demo/demo.py
-          - echo "Sau demo.py:"
-          - ls -lh
 
-      - id: read_csv
+      - id: convert_parquet_to_csv
         type: io.kestra.plugin.scripts.shell.Commands
         beforeCommands:
-          - pip install pandas
-        taskRunner:
-          type: io.kestra.plugin.core.runner.Process
+          - pip install pandas pyarrow
+        outputFiles:
+          - "*.csv"
         commands:
-          - ls -lh
-          - python demo/read_csv.py
+          - python demo/demo.py
+
+      - id: upload_to_gcs
+        type: io.kestra.plugin.gcp.gcs.Upload
+        from: "{{outputs.extract.outputFiles['green_tripdata_2020-01.csv']}}"
+        to: "gs://{{kv('GCP_BUCKET_NAME')}}/green_tripdata_2020-01.csv"
+
+pluginDefaults:
+  - type: io.kestra.plugin.gcp
+    values:
+      serviceAccount: "{{kv('GCP_CREDS')}}"
+      projectId: "{{kv('GCP_PROJECT_ID')}}"
+      location: "{{kv('GCP_LOCATION')}}"
+      bucket: "{{kv('GCP_BUCKET_NAME')}}"
