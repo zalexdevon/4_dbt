@@ -1,1 +1,2 @@
-DROP TABLE IF EXISTS `{{ext_table}}`,  `{{tmp_table}}`; 
+DROP TABLE IF EXISTS `{{ext_table}}`; 
+DROP TABLE IF EXISTS `{{tmp_table}}`; 

@@ -48,7 +48,7 @@ tasks:
         outputFiles:
           - "*.csv"
         commands:
-          - python main/code/utils/convert_parquet_to_csv.py {{ render(vars.source_file)}} {{ render(vars.csv_file)  }}
+          - python main/code/utils/convert_parquet_to_csv.py {{ render(vars.source_file)}} {{ render(vars.csv_file) }}
 
       - id: upload_to_gcs
         type: io.kestra.plugin.gcp.gcs.Upload
