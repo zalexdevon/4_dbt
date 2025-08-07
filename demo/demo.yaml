@@ -39,10 +39,11 @@ tasks:
         to: "{{render(vars.gcs_file)}}"
 
       - id: read_sql
-        type: io.kestra.plugin.scripts.python.Script
-        script: |
-          with open("demo/demo.sql", "r") as f:
-            print(f.read())
+        type: io.kestra.plugin.scripts.python.Commands
+        taskRunner:
+          type: io.kestra.plugin.core.runner.Process
+        commands:
+          - python demo/read_sql.py
 
       - id: create_schema
         type: io.kestra.plugin.gcp.bigquery.Query
