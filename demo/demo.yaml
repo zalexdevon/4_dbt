@@ -19,7 +19,7 @@ tasks:
           - wget -q -O green_tripdata_2020-01.parquet https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2020-01.parquet
 
       - id: convert_parquet_to_csv
-        type: io.kestra.plugin.scripts.shell.Commands
+        type: io.kestra.plugin.scripts.python.Commands
         beforeCommands:
           - pip install pandas pyarrow
         outputFiles:
