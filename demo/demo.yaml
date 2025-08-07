@@ -38,11 +38,15 @@ tasks:
         from: "{{render(vars.data)}}"
         to: "{{render(vars.gcs_file)}}"
 
+      - id: read_sql
+        type: io.kestra.plugin.scripts.python.Script
+        script: |
+          with open("demo/demo.sql", "r") as f:
+            print(f.read())
+
       - id: create_schema
-        type: o.kestra.plugin.gcp.bigquery.Query
-        inputFiles:
-          - "demo/demo.sql"
-        sql: "{{ file('demo/demo.sql') }}"
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: "{{ outputs.read_sql.stdout }}"
 
       - id: purge_files
         type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
