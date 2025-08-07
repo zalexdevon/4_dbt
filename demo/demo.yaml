@@ -24,8 +24,8 @@ tasks:
           # - echo "Trước demo.py:"
           # - ls -lh
           - python demo/demo.py
-          # - echo "Sau demo.py:"
-          # - ls -lh
+          - echo "Sau demo.py:"
+          - ls -lh
 
       - id: read_csv
         type: io.kestra.plugin.scripts.shell.Commands
@@ -34,4 +34,4 @@ tasks:
         taskRunner:
           type: io.kestra.plugin.core.runner.Process
         commands:
-          - python demo/read_csv.py
+          - ls -lh
