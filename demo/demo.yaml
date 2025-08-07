@@ -13,16 +13,29 @@ tasks:
 
       - id: extract
         type: io.kestra.plugin.scripts.shell.Commands
+        beforeCommands:
+          - pip install pandas pyarrow
         outputFiles:
           - "*.parquet"
         taskRunner:
           type: io.kestra.plugin.core.runner.Process
         commands:
-          - wget -q https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2020-01.parquet
-
-      - id: convert_parquet_to_csv
-        type: io.kestra.plugin.scripts.python.Commands
-        beforeCommands:
-          - pip install pandas pyarrow
-        commands:
+          - wget -q -O green_tripdata_2020-01.parquet https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2020-01.parquet
           - python demo/demo.py
+        # commands:
+        #   - curl -L -o green_tripdata_2020-01.parquet https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2020-01.parquet
+
+      # - id: check-location
+      #   type: io.kestra.plugin.scripts.shell.Commands
+      #   taskRunner:
+      #     type: io.kestra.plugin.core.runner.Process
+      #   commands:
+      #     - echo "Root directory:"
+      #     - ls -lh
+
+      # - id: convert_parquet_to_csv
+      #   type: io.kestra.plugin.scripts.python.Commands
+      #   beforeCommands:
+      #     - pip install pandas pyarrow
+      #   commands:
+      #     - python demo/demo.py

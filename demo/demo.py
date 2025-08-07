@@ -1,7 +1,12 @@
 import pandas as pd
+import os
 
 # Đọc file parquet
-df = pd.read_parquet("../green_tripdata_2020-01.parquet")
+file_path = "../green_tripdata_2020-01.parquet"
+if os.path.exists(file_path):
+    print("file path exists")
 
-# Ghi ra file CSV
-df.to_csv("green_tripdata_2020-01.csv", index=False)
+# df = pd.read_parquet(file_path)
+
+# # Ghi ra file CSV
+# df.to_csv("green_tripdata_2020-01.csv", index=False)
