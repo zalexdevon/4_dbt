@@ -7,7 +7,7 @@ variables:
   source_file: "green_tripdata_2020-01.parquet"
   csv_file: "green_tripdata_2020-01.csv"
   gcs_file: "gs://{{kv('GCP_BUCKET_NAME')}}/{{vars.csv_file}}"
-  data: "{{outputs.convert_parquet_to_csv.outputFiles[{{render(vars.csv_file)}}]}}"
+  data: "{{outputs.convert_parquet_to_csv.outputFiles[vars.csv_file]}}"
 
 tasks:
   - id: wdir
