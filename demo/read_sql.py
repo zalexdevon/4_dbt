@@ -16,12 +16,7 @@ with open(file_path, "r") as f:
 
 sql = sql_template.render(**params)
 
-# TODO: d
-print(file_path)
-print(sql)
-print()
-# d
 
 # print(sql)
-var_name = file_path.split(".")[0]
+var_name = file_path.split("/")[-1].split(".")[0]
 Kestra.outputs({var_name: sql})
