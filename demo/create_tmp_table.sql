@@ -9,8 +9,8 @@ MD5(CONCAT(
     COALESCE(CAST(DOLocationID AS STRING), "")
 )) AS unique_row_id,
 "{{source_file}}" AS filename,
-SAFE_CAST(passenger_count AS INT64) AS passenger_count,
-SAFE_CAST(payment_type AS INT64) AS payment_type,
+SAFE_CAST(passenger_count AS INTEGER) AS passenger_count,
+SAFE_CAST(payment_type AS INTEGER) AS payment_type,
 *
 EXCEPT(passenger_count, payment_type)
 FROM `{{ext_table}}`;
