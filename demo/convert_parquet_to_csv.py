@@ -11,8 +11,8 @@ df = pd.read_parquet(source_file)
 # Chỉ lấy 5 dòng đầu tiên
 df = df.head(5)
 
-# Fill nan
-df = df.fillna("NaN")
+# # Fill nan
+# df = df.fillna("NaN")
 
 # Ghi ra file CSV
 df.to_csv(csv_file, index=False)
