@@ -2,6 +2,8 @@ import pandas as pd
 import os
 
 # Đọc file parquet
+print(f"Đường dẫn làm việc hiện tại: {os.getcwd()}")
+
 file_path = "green_tripdata_2020-01.parquet"
 if os.path.exists(file_path):
     print("file path exists")
