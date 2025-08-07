@@ -23,7 +23,7 @@ CREATE OR REPLACE EXTERNAL TABLE `{{table}}`
 )
 OPTIONS (
     format = 'CSV',
-    uris = [{{gcs_file}}],
+    uris = ["{{gcs_file}}"],
     skip_leading_rows = 1,
     ignore_unknown_values = TRUE
 );
