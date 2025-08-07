@@ -12,4 +12,5 @@ MD5(CONCAT(
 SAFE_CAST(passenger_count AS INT64) AS passenger_count,
 SAFE_CAST(payment_type AS INT64) AS payment_type,
 *
+EXCEPT(passenger_count, payment_type)
 FROM `{{ext_table}}`;
