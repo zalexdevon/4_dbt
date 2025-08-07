@@ -21,6 +21,7 @@ tasks:
           type: io.kestra.plugin.core.runner.Process
         commands:
           - wget -q -O green_tripdata_2020-01.parquet https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2020-01.parquet
+          - ls -lh
           - python demo/demo.py
         # commands:
         #   - curl -L -o green_tripdata_2020-01.parquet https://d37ci6vzurychx.cloudfront.net/trip-data/green_tripdata_2020-01.parquet
