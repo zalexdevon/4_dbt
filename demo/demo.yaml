@@ -24,26 +24,26 @@ tasks:
         type: io.kestra.plugin.git.Clone
         url: https://github.com/zalexdevon/4_dbt.git
 
-      - id: extract
-        type: io.kestra.plugin.scripts.shell.Commands
-        taskRunner:
-          type: io.kestra.plugin.core.runner.Process
-        commands:
-          - wget -q -O {{render(vars.source_file)}} https://d37ci6vzurychx.cloudfront.net/trip-data/{{render(vars.source_file)}}
+      # - id: extract
+      #   type: io.kestra.plugin.scripts.shell.Commands
+      #   taskRunner:
+      #     type: io.kestra.plugin.core.runner.Process
+      #   commands:
+      #     - wget -q -O {{render(vars.source_file)}} https://d37ci6vzurychx.cloudfront.net/trip-data/{{render(vars.source_file)}}
 
-      - id: convert_parquet_to_csv
-        type: io.kestra.plugin.scripts.python.Commands
-        beforeCommands:
-          - pip install pandas pyarrow
-        outputFiles:
-          - "*.csv"
-        commands:
-          - python demo/convert_parquet_to_csv.py {{ vars.source_file }} {{ vars.csv_file }}
+      # - id: convert_parquet_to_csv
+      #   type: io.kestra.plugin.scripts.python.Commands
+      #   beforeCommands:
+      #     - pip install pandas pyarrow
+      #   outputFiles:
+      #     - "*.csv"
+      #   commands:
+      #     - python demo/convert_parquet_to_csv.py {{ vars.source_file }} {{ vars.csv_file }}
 
-      - id: upload_to_gcs
-        type: io.kestra.plugin.gcp.gcs.Upload
-        from: "{{render(vars.data)}}"
-        to: "{{render(vars.gcs_file)}}"
+      # - id: upload_to_gcs
+      #   type: io.kestra.plugin.gcp.gcs.Upload
+      #   from: "{{render(vars.data)}}"
+      #   to: "{{render(vars.gcs_file)}}"
 
       - id: read_sql
         type: io.kestra.plugin.scripts.python.Commands
