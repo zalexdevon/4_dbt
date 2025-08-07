@@ -38,7 +38,7 @@ tasks:
         outputFiles:
           - "*.csv"
         commands:
-          - python demo/demo.py {{ vars.source_file }} {{ vars.csv_file }}
+          - python demo/convert_parquet_to_csv.py {{ vars.source_file }} {{ vars.csv_file }}
 
       - id: upload_to_gcs
         type: io.kestra.plugin.gcp.gcs.Upload
@@ -55,25 +55,25 @@ tasks:
           - python demo/read_sql.py {{render(vars.create_tmp_table_params_dict)}} "demo/create_tmp_table.sql"
           - python demo/read_sql.py {{render(vars.merge_params_dict)}} "demo/merge.sql"
 
-      - id: create_schema_for_main_table
-        type: io.kestra.plugin.gcp.bigquery.Query
-        sql: "{{ outputs.read_sql.vars.create_schema_for_main_table }}"
+      # - id: create_schema_for_main_table
+      #   type: io.kestra.plugin.gcp.bigquery.Query
+      #   sql: "{{ outputs.read_sql.vars.create_schema_for_main_table }}"
 
-      - id: create_ext_table
-        type: io.kestra.plugin.gcp.bigquery.Query
-        sql: "{{ outputs.read_sql.vars.create_ext_table }}"
+      # - id: create_ext_table
+      #   type: io.kestra.plugin.gcp.bigquery.Query
+      #   sql: "{{ outputs.read_sql.vars.create_ext_table }}"
 
-      - id: create_tmp_table
-        type: io.kestra.plugin.gcp.bigquery.Query
-        sql: "{{ outputs.read_sql.vars.create_tmp_table }}"
+      # - id: create_tmp_table
+      #   type: io.kestra.plugin.gcp.bigquery.Query
+      #   sql: "{{ outputs.read_sql.vars.create_tmp_table }}"
 
-      - id: merge
-        type: io.kestra.plugin.gcp.bigquery.Query
-        sql: "{{ outputs.read_sql.vars.merge }}"
+      # - id: merge
+      #   type: io.kestra.plugin.gcp.bigquery.Query
+      #   sql: "{{ outputs.read_sql.vars.merge }}"
 
-      - id: purge_files
-        type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
-        description: To avoid cluttering your storage, we will remove the downloaded files
+      # - id: purge_files
+      #   type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
+      #   description: To avoid cluttering your storage, we will remove the downloaded files
 
 pluginDefaults:
   - type: io.kestra.plugin.gcp
