@@ -35,3 +35,4 @@ tasks:
           type: io.kestra.plugin.core.runner.Process
         commands:
           - ls -lh
+          - python demo/read_csv.py
