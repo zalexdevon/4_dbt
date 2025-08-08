@@ -1,0 +1,69 @@
+id: upload_data_to_gcs
+namespace: zoomcamp
+description: |
+  data used here comes from: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
+
+inputs:
+  - id: taxi
+    type: SELECT
+    displayName: Select taxi type
+    values: [yellow, green, fhv]
+    defaults: green
+
+variables:
+  year_month: "{{trigger.date | date('yyyy-MM')}}"
+  file_name: "{{inputs.taxi}}_tripdata_{{vars.year_month}}"
+  source_file: "{{vars.file_name}}.parquet"
+  gcs_file: "gs://{{kv('GCP_BUCKET_NAME')}}/{{vars.source_file}}"
+
+tasks:
+  - id: set_label
+    type: io.kestra.plugin.core.execution.Labels
+    labels:
+      file: "{{render(vars.source_file)}}"
+      taxi: "{{inputs.taxi}}"
+
+  - id: extract
+    type: io.kestra.plugin.scripts.shell.Commands
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    outputFiles:
+      - "*.parquet"
+    commands:
+      - wget -q -O {{render(vars.source_file)}} https://d37ci6vzurychx.cloudfront.net/trip-data/{{render(vars.source_file)}}
+
+  - id: upload_to_gcs
+    type: io.kestra.plugin.gcp.gcs.Upload
+    from: "{{outputs.extract.outputFiles[render(vars.source_file)]}}"
+    to: "{{render(vars.gcs_file)}}"
+
+  - id: purge_files
+    type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
+    description: To avoid cluttering your storage, we will remove the downloaded files
+
+pluginDefaults:
+  - type: io.kestra.plugin.gcp
+    values:
+      serviceAccount: "{{kv('GCP_CREDS')}}"
+      projectId: "{{kv('GCP_PROJECT_ID')}}"
+      location: "{{kv('GCP_LOCATION')}}"
+      bucket: "{{kv('GCP_BUCKET_NAME')}}"
+
+triggers:
+  - id: green_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 9 1 * *"
+    inputs:
+      taxi: green
+
+  - id: yellow_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 10 1 * *"
+    inputs:
+      taxi: yellow
+
+  - id: fhv_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 11 1 * *"
+    inputs:
+      taxi: fhv

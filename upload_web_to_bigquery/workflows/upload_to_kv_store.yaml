@@ -1,0 +1,30 @@
+id: upload_to_kv_store
+namespace: zoomcamp
+
+tasks:
+  # Còn key = GCP_CREDS thì tự thêm bằng tay
+
+  - id: gcp_project_id
+    type: io.kestra.plugin.core.kv.Set
+    key: GCP_PROJECT_ID
+    kvType: STRING
+    value: dbt-468213 # Giá trị project id chứ không phải name
+
+  - id: gcp_location
+    type: io.kestra.plugin.core.kv.Set
+    key: GCP_LOCATION
+    kvType: STRING
+    value: US # Region
+
+  - id: gcp_bucket_name
+    type: io.kestra.plugin.core.kv.Set
+    key: GCP_BUCKET_NAME
+    kvType: STRING
+    value: dbt-468213-storage # Tên bucket trong Storage, đảm bảo globally unique
+
+  - id: gcp_dataset
+    type: io.kestra.plugin.core.kv.Set
+    key: GCP_DATASET
+    kvType: STRING
+    value: 4_dbt_dataset # Tên dataset trong Bigquery
+
