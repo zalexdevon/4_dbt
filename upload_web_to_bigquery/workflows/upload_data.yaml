@@ -53,7 +53,7 @@ tasks:
         outputFiles:
           - "*.csv"
         commands:
-          - python main/code/utils/convert_parquet_to_csv.py {{ render(vars.source_file)}} {{ render(vars.csv_file) }}
+          - python upload_web_to_bigquery/code/utils/convert_parquet_to_csv.py {{ render(vars.source_file)}} {{ render(vars.csv_file) }}
 
       - id: upload_to_gcs
         type: io.kestra.plugin.gcp.gcs.Upload
@@ -65,11 +65,11 @@ tasks:
         beforeCommands:
           - pip install kestra jinja2
         commands:
-          - python main/code/utils/read_sql.py '{{render(vars.create_schema_for_main_table_params_dict)}}' "main/code/{{inputs.taxi}}/create_schema_for_main_table.sql"
-          - python main/code/utils/read_sql.py '{{render(vars.create_ext_table_params_dict)}}' "main/code/{{inputs.taxi}}/create_ext_table.sql"
-          - python main/code/utils/read_sql.py '{{render(vars.create_tmp_table_params_dict)}}' "main/code/{{inputs.taxi}}/create_tmp_table.sql"
-          - python main/code/utils/read_sql.py '{{render(vars.merge_params_dict)}}' "main/code/{{inputs.taxi}}/merge.sql"
-          - python main/code/utils/read_sql.py '{{render(vars.remove_ext_tmp_table_params_dict)}}' "main/code/common/remove_ext_tmp_table.sql"
+          - python upload_web_to_bigquery/code/utils/read_sql.py '{{render(vars.create_schema_for_main_table_params_dict)}}' "upload_web_to_bigquery/code/{{inputs.taxi}}/create_schema_for_main_table.sql"
+          - python upload_web_to_bigquery/code/utils/read_sql.py '{{render(vars.create_ext_table_params_dict)}}' "upload_web_to_bigquery/code/{{inputs.taxi}}/create_ext_table.sql"
+          - python upload_web_to_bigquery/code/utils/read_sql.py '{{render(vars.create_tmp_table_params_dict)}}' "upload_web_to_bigquery/code/{{inputs.taxi}}/create_tmp_table.sql"
+          - python upload_web_to_bigquery/code/utils/read_sql.py '{{render(vars.merge_params_dict)}}' "upload_web_to_bigquery/code/{{inputs.taxi}}/merge.sql"
+          - python upload_web_to_bigquery/code/utils/read_sql.py '{{render(vars.remove_ext_tmp_table_params_dict)}}' "upload_web_to_bigquery/code/common/remove_ext_tmp_table.sql"
 
       - id: create_schema_for_main_table
         type: io.kestra.plugin.gcp.bigquery.Query

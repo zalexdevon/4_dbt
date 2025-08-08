@@ -1,0 +1,31 @@
+id: upload_taxi_zone_lookup_to_gcs
+namespace: zoomcamp
+description: |
+  data used here comes from: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page
+
+tasks:
+  - id: extract
+    type: io.kestra.plugin.scripts.shell.Commands
+    taskRunner:
+      type: io.kestra.plugin.core.runner.Process
+    outputFiles:
+      - "*.csv"
+    commands:
+      - wget -q -O taxi_zone_lookup.csv https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv
+
+  - id: upload_to_gcs
+    type: io.kestra.plugin.gcp.gcs.Upload
+    from: "{{outputs.extract.outputFiles['taxi_zone_lookup.csv']}}"
+    to: "gs://{{kv('GCP_BUCKET_NAME')}}/taxi_zone_lookup.csv"
+
+  - id: purge_files
+    type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
+    description: To avoid cluttering your storage, we will remove the downloaded files
+
+pluginDefaults:
+  - type: io.kestra.plugin.gcp
+    values:
+      serviceAccount: "{{kv('GCP_CREDS')}}"
+      projectId: "{{kv('GCP_PROJECT_ID')}}"
+      location: "{{kv('GCP_LOCATION')}}"
+      bucket: "{{kv('GCP_BUCKET_NAME')}}"

@@ -8,8 +8,6 @@ csv_file = sys.argv[2]
 # Đọc file parquet
 df = pd.read_parquet(source_file)
 
-# Chỉ lấy 5 dòng đầu tiên
-df = df.head(5)
 
 # # Fill nan
 # df = df.fillna("NaN")
