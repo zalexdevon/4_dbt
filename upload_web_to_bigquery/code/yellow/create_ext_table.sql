@@ -17,7 +17,7 @@ CREATE OR REPLACE EXTERNAL TABLE `{{table}}`
     tolls_amount NUMERIC ,
     improvement_surcharge NUMERIC ,
     total_amount NUMERIC ,
-    congestion_surcharge NUMERIC ,
+    congestion_surcharge NUMERIC
 )
 OPTIONS (
     format = 'CSV',

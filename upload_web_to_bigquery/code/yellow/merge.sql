@@ -22,7 +22,7 @@ WHEN NOT MATCHED THEN
         tolls_amount ,
         improvement_surcharge ,
         total_amount ,
-        congestion_surcharge ,
+        congestion_surcharge
     )
     VALUES (
         tmp.unique_row_id,
@@ -44,5 +44,5 @@ WHEN NOT MATCHED THEN
         tmp.tolls_amount ,
         tmp.improvement_surcharge ,
         tmp.total_amount ,
-        tmp.congestion_surcharge ,
+        tmp.congestion_surcharge
     )

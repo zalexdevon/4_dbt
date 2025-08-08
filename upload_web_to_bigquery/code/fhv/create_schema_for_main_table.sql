@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS `{{table}}`
     PUlocationID STRING, 
     DOlocationID STRING, 
     SR_Flag STRING, 
-    Affiliated_base_number STRING, 
+    Affiliated_base_number STRING
 ); 

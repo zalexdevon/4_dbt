@@ -19,5 +19,5 @@ CREATE TABLE IF NOT EXISTS `{{table}}`
     tolls_amount NUMERIC ,
     improvement_surcharge NUMERIC ,
     total_amount NUMERIC ,
-    congestion_surcharge NUMERIC ,
+    congestion_surcharge NUMERIC
 ); 

@@ -6,7 +6,7 @@ CREATE OR REPLACE EXTERNAL TABLE `{{table}}`
     PUlocationID STRING, 
     DOlocationID STRING, 
     SR_Flag STRING, 
-    Affiliated_base_number STRING,
+    Affiliated_base_number STRING
 )
 OPTIONS (
     format = 'CSV',

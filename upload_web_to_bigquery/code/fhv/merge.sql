@@ -11,7 +11,7 @@ WHEN NOT MATCHED THEN
         PUlocationID, 
         DOlocationID, 
         SR_Flag, 
-        Affiliated_base_number, 
+        Affiliated_base_number
     )
     VALUES (
         tmp.unique_row_id ,
@@ -22,5 +22,5 @@ WHEN NOT MATCHED THEN
         tmp.PUlocationID, 
         tmp.DOlocationID, 
         tmp.SR_Flag, 
-        tmp.Affiliated_base_number, 
+        tmp.Affiliated_base_number
     )
