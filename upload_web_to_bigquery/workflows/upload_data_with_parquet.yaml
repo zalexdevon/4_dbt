@@ -1,0 +1,115 @@
+id: upload_data_with_parquet
+namespace: zoomcamp
+description: |
+  data used here comes from: https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page and not use convert_parquet_to_csv
+
+inputs:
+  - id: taxi
+    type: SELECT
+    displayName: Select taxi type
+    values: [yellow, green, fhv]
+    defaults: green
+
+variables:
+  year_month: "{{trigger.date | date('yyyy-MM')}}"
+  file_name: "{{inputs.taxi}}_tripdata_{{vars.year_month}}"
+  source_file: "{{vars.file_name}}.parquet"
+  gcs_file: "gs://{{kv('GCP_BUCKET_NAME')}}/{{vars.source_file}}"
+  main_table: "{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{inputs.taxi}}_tripdata"
+  ext_table: "{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{vars.file_name}}_ext"
+  tmp_table: "{{kv('GCP_PROJECT_ID')}}.{{kv('GCP_DATASET')}}.{{vars.file_name}}"
+  create_schema_for_main_table_params_dict: '{ "table": "{{vars.main_table}}" }'
+  create_ext_table_params_dict: '{ "table": "{{vars.ext_table}}", "gcs_file": "{{vars.gcs_file}}" }'
+  create_tmp_table_params_dict: '{ "table": "{{vars.tmp_table}}", "source_file": "{{vars.source_file}}", "ext_table": "{{vars.ext_table}}" }'
+  merge_params_dict: '{ "main_table": "{{vars.main_table}}", "tmp_table": "{{vars.tmp_table}}" }'
+  remove_ext_tmp_table_params_dict: '{ "ext_table": "{{vars.ext_table}}", "tmp_table": "{{vars.tmp_table}}" }'
+
+tasks:
+  - id: set_label
+    type: io.kestra.plugin.core.execution.Labels
+    labels:
+      file: "{{render(vars.source_file)}}"
+      taxi: "{{inputs.taxi}}"
+
+  - id: wdir
+    type: io.kestra.plugin.core.flow.WorkingDirectory
+    tasks:
+      - id: clone
+        type: io.kestra.plugin.git.Clone
+        url: https://github.com/zalexdevon/4_dbt.git
+
+      - id: extract
+        type: io.kestra.plugin.scripts.shell.Commands
+        taskRunner:
+          type: io.kestra.plugin.core.runner.Process
+        outputFiles:
+          - "*.parquet"
+        commands:
+          - wget -q -O {{render(vars.source_file)}} https://d37ci6vzurychx.cloudfront.net/trip-data/{{render(vars.source_file)}}
+
+      - id: upload_to_gcs
+        type: io.kestra.plugin.gcp.gcs.Upload
+        from: "{{outputs.extract.outputFiles[render(vars.source_file)]}}"
+        to: "{{render(vars.gcs_file)}}"
+
+      - id: read_sql
+        type: io.kestra.plugin.scripts.python.Commands
+        beforeCommands:
+          - pip install kestra jinja2
+        commands:
+          - python upload_web_to_bigquery/code/utils/read_sql.py '{{render(vars.create_schema_for_main_table_params_dict)}}' "upload_web_to_bigquery/code/{{inputs.taxi}}/create_schema_for_main_table.sql"
+          - python upload_web_to_bigquery/code/utils/read_sql.py '{{render(vars.create_ext_table_params_dict)}}' "upload_web_to_bigquery/code/{{inputs.taxi}}/create_ext_table_parquet.sql"
+          - python upload_web_to_bigquery/code/utils/read_sql.py '{{render(vars.create_tmp_table_params_dict)}}' "upload_web_to_bigquery/code/{{inputs.taxi}}/create_tmp_table.sql"
+          - python upload_web_to_bigquery/code/utils/read_sql.py '{{render(vars.merge_params_dict)}}' "upload_web_to_bigquery/code/{{inputs.taxi}}/merge.sql"
+          - python upload_web_to_bigquery/code/utils/read_sql.py '{{render(vars.remove_ext_tmp_table_params_dict)}}' "upload_web_to_bigquery/code/common/remove_ext_tmp_table.sql"
+
+      - id: create_schema_for_main_table
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: "{{ outputs.read_sql.vars.create_schema_for_main_table }}"
+
+      - id: create_ext_table
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: "{{ outputs.read_sql.vars.create_ext_table }}"
+
+      - id: create_tmp_table
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: "{{ outputs.read_sql.vars.create_tmp_table }}"
+
+      - id: merge
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: "{{ outputs.read_sql.vars.merge }}"
+
+      - id: remove_ext_tmp_table
+        type: io.kestra.plugin.gcp.bigquery.Query
+        sql: "{{ outputs.read_sql.vars.remove_ext_tmp_table }}"
+
+      - id: purge_files
+        type: io.kestra.plugin.core.storage.PurgeCurrentExecutionFiles
+        description: To avoid cluttering your storage, we will remove the downloaded files
+
+pluginDefaults:
+  - type: io.kestra.plugin.gcp
+    values:
+      serviceAccount: "{{kv('GCP_CREDS')}}"
+      projectId: "{{kv('GCP_PROJECT_ID')}}"
+      location: "{{kv('GCP_LOCATION')}}"
+      bucket: "{{kv('GCP_BUCKET_NAME')}}"
+
+triggers:
+  - id: green_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 9 1 * *"
+    inputs:
+      taxi: green
+
+  - id: yellow_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 10 1 * *"
+    inputs:
+      taxi: yellow
+
+  - id: fhv_schedule
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 11 1 * *"
+    inputs:
+      taxi: fhv
